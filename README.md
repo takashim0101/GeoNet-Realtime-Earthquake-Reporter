@@ -49,7 +49,17 @@ To run the LLM locally, install Ollama and download the `llama3` model.
     ```
     (This will download the model and start the Ollama server.)
 
-### 4. Run the Application
+### 4. Set Up Environment Variables
+
+Create a `.env` file in the root directory of your project and add your Stats NZ API key:
+
+```
+STATS_NZ_API_KEY="YOUR_STATS_NZ_API_KEY"
+```
+
+Replace `"YOUR_STATS_NZ_API_KEY"` with your actual API key. This key is used to access population data.
+
+### 5. Run the Application
 
 The application consists of two parts:
 
@@ -84,17 +94,28 @@ To deploy this app on Streamlit Community Cloud, you need to push your code to a
     ```
 3.  **Deploy from Streamlit Community Cloud**: From the Streamlit Community Cloud dashboard, select your GitHub repository to deploy.
 
+**Note on Cloud Deployment Limitations**:
+When deployed to Streamlit Community Cloud, the background notification system and the local Ollama LLM integration will not function as they do on your local machine. These parts would require re-architecting for a cloud deployment (e.g., using cloud-based LLM APIs, or separate cloud services for scheduling).
+
 ## Implemented Improvements
 
 *   **Notification Feature (Alert System)**:
-    *   Uses `apscheduler` to monitor the GeoNet API in the background.
-    *   Detects earthquakes with Magnitude 4.0 or higher and writes messages to `notification_status.txt`.
-    *   The Streamlit app reads `notification_status.txt` and displays alerts in the UI.
+    *   `apscheduler` を使用してバックグラウンドでGeoNet APIを監視。
+    *   M4.0以上の地震を検知した場合、`notification_status.txt` にメッセージを書き込み。
+    *   Streamlitアプリは `notification_status.txt` を読み込み、UIにアラートを表示。
+*   **Urban Impact Map - Population Data Integration (Initial)**:
+    *   Integrated Stats NZ Spatial Query API to fetch population-related data around earthquake epicenters.
+    *   Uses `STATS_NZ_API_KEY` loaded from `.env` for API access.
+    *   The Streamlit app now displays raw JSON output of population data for the latest earthquake's location.
 
 ## Future Improvement Ideas (Phase 2 onwards)
 
-1.  **Enhanced Notification System**: Implement real-time email/SMS alerts (e.g., using SendGrid/Twilio).
-2.  **Historical Data Analysis**: Utilize GeoNet's historical data API or CSV data for long-term earthquake trend analysis and visualization.
-3.  **Urban Impact Map**: Overlay GIS layers (population density, building distribution, ground conditions) to visualize vulnerable areas and high-risk cities as heatmaps.
+1.  **Enhanced Notification System**: Implement real-time email/SMS alerts (e.g., using SendGrid/Twilio) or free alternatives like Discord/Slack webhooks.
+2.  **Historical Earthquake Data Acquisition**: Programmatically fetch historical earthquake data from GeoNet (e.g., using the `/quake?MMI=(int)` endpoint for the last 365 days) for ML model training.
+3.  **Urban Impact Map - Full ML/DL Integration**:
+    *   **GIS Layers Acquisition**: Acquire building outlines (LINZ Data Service) and ground conditions (GNS Science geological maps/fault lines) (initially via manual download).
+    *   **Feature Engineering**: Prepare historical earthquake data and GIS layers for ML models.
+    *   **Model Selection & Training**: Develop and train ML/DL models for vulnerability assessment or damage prediction.
+    *   **GIS Visualization**: Visualize predicted impact (e.g., heatmaps, risk scores) on the map using processed GIS data.
 4.  **Real-time LLM Enhancement**: Refine LLM prompts to automatically generate more detailed insights, such as "which cities are most affected" and "recommended countermeasures."
 5.  **User-Specific Reports**: Adjust LLM output tone (prompt tuning) based on user roles (e.g., urban planners, real estate agents, disaster management personnel).

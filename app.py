@@ -18,6 +18,10 @@ import pandas as pd
 import altair as alt
 import time
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 #---------------------------------------------------------------------------------------------------
 # 1. APIキーの設定とAPI呼び出し関数
@@ -114,6 +118,57 @@ def call_llm_api(prompt):
         st.error(f"An unexpected error occurred: {e}")
         return {"error": "An unexpected error occurred while calling the LLM."}
 
+def get_population_data_from_statsnz(longitude, latitude, radius_meters=10000):
+    """
+    Stats NZ Spatial Query APIから指定された座標周辺の人口関連データを取得する関数。
+    """
+    api_key = os.getenv("STATS_NZ_API_KEY")
+    if not api_key:
+        st.warning("STATS_NZ_API_KEY not found in .env file. Population data will not be fetched.")
+        return None
+
+    # Layer ID 115044 is assumed to be a population-related boundary layer based on previous search.
+    # We need to confirm its exact nature for proper interpretation.
+    layer_id = "115044" 
+    
+    # Stats NZ API expects coordinates in NZTM2000 projection (EPSG:2193)
+    # However, the API example uses x and y which typically correspond to longitude and latitude in WGS84 (EPSG:4326)
+    # For simplicity, we'll assume the API can handle WGS84 for now, or requires a transformation.
+    # If the API truly requires NZTM2000, a coordinate transformation step would be needed here.
+    
+    api_url = (f"https://datafinder.stats.govt.nz/services/query/v1/vector.json?"
+               f"key={api_key}&layer={layer_id}&x={longitude}&y={latitude}&"
+               f"max_results=10&radius={radius_meters}&geometry=true&with_field_names=true")
+    
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data and 'features' in data:
+            # Extract relevant properties from features
+            # The exact fields will depend on the layer's schema
+            population_info = []
+            for feature in data['features']:
+                props = feature.get('properties', {})
+                # Assuming 'name' and 'population' or similar fields exist
+                # This part needs adjustment once we know the exact schema of layer 115044
+                population_info.append({
+                    "Name": props.get('name', 'N/A'),
+                    "Value": props.get('value', 'N/A'), # Placeholder, actual field name needed
+                    "Geometry": feature.get('geometry')
+                })
+            return population_info
+        else:
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error accessing Stats NZ API: {e}")
+        return None
+    except Exception as e:
+        st.error(f"An unexpected error occurred while fetching population data: {e}")
+        return None
+
 
 #---------------------------------------------------------------------------------------------------
 # 2. Streamlit UIの構築
@@ -178,6 +233,24 @@ if quakes and quakes[0]['Magnitude'] is not None:
     
     st.subheader("📝 Latest Earthquake Data")
     st.write(earthquake_df)
+
+    # Fetch and display population data for the latest earthquake
+    if quakes:
+        latest_quake = quakes[0]
+        st.subheader(f"👥 Population Data near {latest_quake['Location']}")
+        
+        # Assuming longitude and latitude are available in latest_quake
+        population_data = get_population_data_from_statsnz(
+            latest_quake['longitude'], 
+            latest_quake['latitude']
+        )
+        
+        if population_data:
+            # For now, just display the raw data.
+            # Later, this can be processed into a GeoDataFrame and visualized.
+            st.json(population_data) 
+        else:
+            st.info("No population data found or API key missing for this location.")
     
     prompt = f"""
     You are a friendly reporter specializing in New Zealand earthquake information.
