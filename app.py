@@ -1,14 +1,18 @@
+# This web app is built using the Streamlit framework.
+# It retrieves the latest earthquake data from the GeoNet API and passes that data to the Google Gemini API.
+# It automatically generates reports for experts or the public.
+#
+# Key Features:
+# 1. Retrieves real-time earthquake data from the GeoNet API and caches the data.
+# 2. Plots earthquake data on a map and visualizes it in interactive charts.
+# 3. Lets LLM create reports based on user personas (e.g., real estate agents).
+# 4. Beautifully formats and displays the structured JSON data returned by LLM.
+#
 
-# このウェブアプリは、Streamlitフレームワークを使用して構築されています。
-# GeoNet APIから最新の地震データを取得し、そのデータをGoogle Gemini APIに渡して
-# 専門家向けまたは一般向けのレポートを自動生成します。
-#
-# 主要な機能:
-# 1. GeoNet APIからリアルタイム地震データを取得し、データをキャッシュする。
-# 2. 地震データを地図上にプロットし、インタラクティブなチャートで可視化する。
-# 3. ユーザーのペルソナ（例: 不動産業者）に基づいて、LLMにレポートを作成させる。
-# 4. LLMから返された構造化されたJSONデータを美しく整形して表示する。
-#
+
+# This app integrates real-time seismic data from GeoNet with population context from Stats NZ to
+# generate localized impact reports using a local LLM. It adjusts messaging based on population density and
+# gracefully handles missing data, making it ideal for public sector use and educational outreach.
 
 import streamlit as st
 import requests
@@ -24,35 +28,28 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #---------------------------------------------------------------------------------------------------
-# 1. APIキーの設定とAPI呼び出し関数
+# 1. Setting the API key and API call function
 #---------------------------------------------------------------------------------------------------
 
-
-
-@st.cache_data(ttl=30)
-def get_latest_earthquakes():
+@st.cache_data(ttl=300)# Cache for 5 minutes instead of 30 seconds
+def fetch_latest_earthquakes():
     """
-    GeoNet APIから最新の地震データを取得する関数。
-    データは30秒間キャッシュされます。
-    MMI=3のパラメータは、人が揺れを感じ始める最低レベルを表します。
+    Fetch latest earthquake data from GeoNet API.
+    Data is cached for 5 minutes to reduce API load.
     """
     api_url = "https://api.geonet.org.nz/quake?MMI=3"
     
     try:
         response = requests.get(api_url)
-        response.raise_for_status()  # HTTPエラーがあれば例外を発生させる
+        response.raise_for_status()
+        data = response.json()
         
-        earthquake_data = response.json()
-        formatted_data = []
-        
-        # 最新の地震を上位5件に限定
-        for feature in earthquake_data['features'][:5]:
+        earthquakes = []
+        for feature in data['features'][:5]:
             props = feature['properties']
-            
-            # タイムスタンプを読みやすい形式に変換
             time_utc = datetime.fromisoformat(props['time'].replace('Z', '+00:00'))
             
-            formatted_data.append({
+            earthquakes.append({
                 "ID": props['publicID'],
                 "Location": props['locality'],
                 "Magnitude": props['magnitude'],
@@ -62,11 +59,9 @@ def get_latest_earthquakes():
                 "latitude": feature['geometry']['coordinates'][1],
                 "longitude": feature['geometry']['coordinates'][0]
             })
-            
-        return formatted_data
-    
+        return earthquakes
     except requests.exceptions.RequestException as e:
-        st.error(f"Error accessing the GeoNet API: {e}")
+        st.error(f"Error accessing GeoNet API: {e}")
         return None
 
 def call_llm_api(prompt):
@@ -74,7 +69,7 @@ def call_llm_api(prompt):
     Calls a local Ollama model to generate a response in a structured JSON format.
     Assumes Ollama is running at http://localhost:11434.
     """
-    url = "http://172.24.48.191:11434/api/generate"
+    url = "http://127.0.0.1:11434/api/generate"
     headers = {
         "Content-Type": "application/json",
     }
@@ -204,7 +199,7 @@ with st.sidebar:
     st.markdown("- **Historical Data**: Could be expanded to include historical quake analysis.")
 
 st.title("GeoNet Real-time Earthquake Reporter 🌏")
-st.markdown("This app provides a clear report on the latest GeoNet data, which is **automatically refreshed every 30 seconds**.")
+st.markdown("This app provides a clear report on the latest GeoNet data, which is **automatically refreshed every 5 minutes**.")
 
 # Read and display notifications from the background scheduler
 notification_message = read_notification_status()
@@ -212,8 +207,8 @@ if notification_message:
     st.error(notification_message) # Use st.error for major quake alerts
 
 # アプリは、インタラクションまたはリフレッシュごとに上から下に実行される
-st.info(f"Fetching information... (Automatically updates every 30 seconds, last updated: {datetime.now().strftime('%H:%M:%S')})")
-quakes = get_latest_earthquakes()
+st.info(f"Fetching information... (Automatically updates every 5 minutes, last updated: {datetime.now().strftime('%H:%M:%S')})")
+quakes = fetch_latest_earthquakes()
 
 if quakes and quakes[0]['Magnitude'] is not None:
     st.subheader("📍 Recent Earthquakes on the Map")
@@ -252,27 +247,12 @@ if quakes and quakes[0]['Magnitude'] is not None:
         else:
             st.info("No population data found or API key missing for this location.")
     
-    prompt = f"""
-    You are a friendly reporter specializing in New Zealand earthquake information.
-    Based on the latest earthquake data below, please provide a concise and calm explanation
-    of the potential impacts in a way that is easy for the general public to understand.
-    Avoid using technical jargon.
+    with open("llm_prompt.txt", "r", encoding="utf-8") as f:
+        prompt_template = f.read()
     
-    User's request: '{user_persona}'
-    
-    ---
-    Latest Earthquake Data:
-    {json.dumps(quakes, indent=2, ensure_ascii=False)}
-    ---
-    
-    Focus the response on the earthquake's location, magnitude, and potential impacts.
-    
-    Please provide the response in a JSON format with the following keys:
-    - 'report_title': A title for the report.
-    - 'summary': A brief summary of the earthquake situation.
-    - 'impacts': An array of objects, where each object describes a specific earthquake's location, magnitude, and potential impact.
-    """
-    
+    prompt = prompt_template.replace("{{earthquake_data}}", json.dumps(quakes, indent=2, ensure_ascii=False)) \
+                        .replace("{{population_data}}", json.dumps(population_data, indent=2, ensure_ascii=False))
+        
     llm_response = call_llm_api(prompt)
     
     st.subheader("🤖 LLM Report")
@@ -289,6 +269,6 @@ if quakes and quakes[0]['Magnitude'] is not None:
 else:
     st.warning("Could not fetch earthquake data. Please try again later.")
 
-# ページを手動でリフレッシュするためのボタンを追加
+# Add a manual refresh button
 if st.button("Refresh data"):
     st.rerun()

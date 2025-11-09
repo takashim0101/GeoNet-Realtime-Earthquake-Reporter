@@ -1,18 +1,57 @@
-# GeoNet Real-time Earthquake Reporter
+# GeoNet Real-time Earthquake Reporter 🌏
 
 ## Project Overview
 
-This project is a Streamlit application that retrieves real-time earthquake data from the GeoNet API in New Zealand, visualizes it, and then uses an LLM (Large Language Model) to automatically generate expert-level reports. The primary goal is to quickly assess the impact of earthquakes from an urban planning and disaster prevention perspective.
+This Streamlit application retrieves real-time earthquake data from the GeoNet API in New Zealand, visualizes it, and uses a local LLM (e.g., Ollama Llama3) to generate expert-level impact reports.  
+It is designed for urban planning, disaster prevention, and public sector communication.
 
-## Feature Highlights
+---
 
-*   **Real-time Data Integration**: Automatically updates with the latest earthquake data from the GeoNet API every 30 seconds.
-*   **Map + Graph + Report Integration**:
-    *   Visualizes the latest earthquakes on an interactive map.
-    *   Instantly grasps earthquake trends with a magnitude distribution graph.
-    *   An LLM (e.g., Ollama Llama3) generates natural language earthquake reports.
-*   **Urban Planning Perspective**: Reports focus on the impact on infrastructure and urban development, providing practical information from the viewpoint of urban disaster prevention and land use.
-*   **Background Notification System**: Detects major earthquakes (Magnitude 4.0 or higher) in the background, generates notifications, and displays them in the Streamlit app.
+## 🔧 Features
+
+- **Real-time Earthquake Monitoring**: Updates every 5 minutes using GeoNet API.
+- **Interactive Visualization**:
+  - Map of recent earthquakes
+  - Magnitude distribution chart
+- **LLM-Generated Reports**:
+  - Natural language summaries based on seismic and population data
+  - Tone tailored for public sector and educational audiences
+- **Population-Aware Messaging**:
+  - Integrates Stats NZ Spatial Query API
+  - Adjusts impact messaging based on nearby population density
+- **Background Notification System**:
+  - Detects M4.0+ earthquakes
+  - Displays alerts in the Streamlit UI
+
+---
+
+
+## 🧠 Prompt Design
+
+The LLM prompt is stored in `.llm_prompt.txt`, guiding the model to produce clear, population-aware summaries.  
+This design ensures:
+
+- ✅ Reproducibility across environments
+- ✅ Customization for different audiences (e.g., planners, educators)
+- ✅ Trust and transparency for public sector use
+
+**Prompt placeholders:**
+
+- `{{earthquake_data}}` → Injects latest GeoNet data  
+- `{{population_data}}` → Injects Stats NZ population context
+
+---
+
+## 🏛️ Public Sector & Educational Use
+
+This app is ideal for:
+
+- **LINZ**: Land use and infrastructure vulnerability
+- **SCION / NIWA**: Environmental risk communication
+- **Educators**: Teaching geospatial reasoning and disaster preparedness
+- **Local Councils**: Public messaging and community awareness
+
+---
 
 ## Setup Instructions
 
@@ -59,6 +98,8 @@ STATS_NZ_API_KEY="YOUR_STATS_NZ_API_KEY"
 
 Replace `"YOUR_STATS_NZ_API_KEY"` with your actual API key. This key is used to access population data.
 
+⚠️ Do not commit .env. Use .env.example to share safe templates.
+
 ### 5. Run the Application
 
 The application consists of two parts:
@@ -67,6 +108,7 @@ The application consists of two parts:
 
 This monitors for major earthquakes in the background and generates notifications.
 
+a. Start Notification Scheduler
 ```bash
 python notification_scheduler.py
 ```
@@ -75,6 +117,7 @@ python notification_scheduler.py
 
 This launches the main web application.
 
+b. Start Streamlit App
 ```bash
 streamlit run app.py
 ```
@@ -97,25 +140,45 @@ To deploy this app on Streamlit Community Cloud, you need to push your code to a
 **Note on Cloud Deployment Limitations**:
 When deployed to Streamlit Community Cloud, the background notification system and the local Ollama LLM integration will not function as they do on your local machine. These parts would require re-architecting for a cloud deployment (e.g., using cloud-based LLM APIs, or separate cloud services for scheduling).
 
-## Implemented Improvements
+## ✅ Implemented Improvements (Phase 1 Complete)
 
-*   **Notification Feature (Alert System)**:
-    *   `apscheduler` を使用してバックグラウンドでGeoNet APIを監視。
-    *   M4.0以上の地震を検知した場合、`notification_status.txt` にメッセージを書き込み。
-    *   Streamlitアプリは `notification_status.txt` を読み込み、UIにアラートを表示。
-*   **Urban Impact Map - Population Data Integration (Initial)**:
-    *   Integrated Stats NZ Spatial Query API to fetch population-related data around earthquake epicenters.
-    *   Uses `STATS_NZ_API_KEY` loaded from `.env` for API access.
-    *   The Streamlit app now displays raw JSON output of population data for the latest earthquake's location.
+- **Notification Feature (Alert System)**:
+  - Uses `apscheduler` to monitor the GeoNet API in the background
+  - If an earthquake ≥ M4.0 is detected, a message is written to `notification_status.txt`
+  - The Streamlit app reads this file and displays alerts in the UI
 
-## Future Improvement Ideas (Phase 2 onwards)
+- **Urban Impact Map - Population Data Integration (Initial)**:
+  - Integrated Stats NZ Spatial Query API to fetch population data near epicenters
+  - Uses `STATS_NZ_API_KEY` from `.env`
+  - Displays raw JSON output in the UI for transparency and debugging
 
-1.  **Enhanced Notification System**: Implement real-time email/SMS alerts (e.g., using SendGrid/Twilio) or free alternatives like Discord/Slack webhooks.
-2.  **Historical Earthquake Data Acquisition**: Programmatically fetch historical earthquake data from GeoNet (e.g., using the `/quake?MMI=(int)` endpoint for the last 365 days) for ML model training.
-3.  **Urban Impact Map - Full ML/DL Integration**:
-    *   **GIS Layers Acquisition**: Acquire building outlines (LINZ Data Service) and ground conditions (GNS Science geological maps/fault lines) (initially via manual download).
-    *   **Feature Engineering**: Prepare historical earthquake data and GIS layers for ML models.
-    *   **Model Selection & Training**: Develop and train ML/DL models for vulnerability assessment or damage prediction.
-    *   **GIS Visualization**: Visualize predicted impact (e.g., heatmaps, risk scores) on the map using processed GIS data.
-4.  **Real-time LLM Enhancement**: Refine LLM prompts to automatically generate more detailed insights, such as "which cities are most affected" and "recommended countermeasures."
-5.  **User-Specific Reports**: Adjust LLM output tone (prompt tuning) based on user roles (e.g., urban planners, real estate agents, disaster management personnel).
+## 🔭 Future Improvement Ideas (Phase 2 onwards)
+
+1. **Enhanced Notification System**  
+   Implement real-time alerts via email, SMS, or messaging platforms:
+   - Use services like SendGrid, Twilio, or free alternatives such as Discord/Slack webhooks
+   - Enable proactive communication for emergency response teams
+
+2. **Historical Earthquake Data Acquisition**  
+   Programmatically fetch and analyze historical data for ML training:
+   - Use GeoNet’s `/quake?MMI=(int)` endpoint to retrieve events from the past 365 days
+   - Build datasets for temporal and spatial modeling
+
+3. **Urban Impact Map – Full ML/DL Integration**  
+   Develop predictive models for earthquake vulnerability:
+   - **GIS Layers Acquisition**: Building outlines (LINZ), geological maps/fault lines (GNS Science)
+   - **Feature Engineering**: Combine seismic history with spatial layers
+   - **Model Training**: Train ML/DL models for damage prediction
+   - **GIS Visualization**: Display risk scores or heatmaps on the map
+
+4. **Real-time LLM Enhancement**  
+   Refine prompt logic to generate deeper insights:
+   - Identify most affected cities
+   - Recommend countermeasures or preparedness actions
+   - Tailor messaging based on severity and population context
+
+5. **User-Specific Reports (Prompt Tuning)**  
+   Customize LLM output based on user roles:
+   - Urban planners → infrastructure impact
+   - Real estate agents → land use and valuation
+   - Disaster management personnel → emergency response and public messaging
