@@ -4,6 +4,7 @@
 
 This Streamlit application retrieves real-time earthquake data from the GeoNet API in New Zealand, visualizes it, and uses a local LLM (e.g., Ollama Llama3) to generate expert-level impact reports.  
 It is designed for urban planning, disaster prevention, and public sector communication.
+This project reflects a reproducible GeoAI architecture designed for public-sector and educational deployment, emphasizing trust, transparency, and audience-aware messaging.
 
 ---
 
@@ -61,7 +62,7 @@ First, clone this repository to your local machine.
 
 ```bash
 git clone [Your GitHub Repository URL]
-cd GeoNetRealtimelandslideeporter
+cd GeoNetRealtimeEarthquakeReporter
 ```
 
 ### 2. Set Up Virtual Environment
@@ -99,6 +100,9 @@ STATS_NZ_API_KEY="YOUR_STATS_NZ_API_KEY"
 Replace `"YOUR_STATS_NZ_API_KEY"` with your actual API key. This key is used to access population data.
 
 ⚠️ Do not commit .env. Use .env.example to share safe templates.
+
+An `.env.example` file is included to provide a safe template for environment variables.
+
 
 ### 5. Run the Application
 
@@ -182,3 +186,44 @@ When deployed to Streamlit Community Cloud, the background notification system a
    - Urban planners → infrastructure impact
    - Real estate agents → land use and valuation
    - Disaster management personnel → emergency response and public messaging
+
+## 🛠️ DevOps & LLMOps Alignment
+
+This project reflects key principles of DevOps and LLMOps:
+
+- **Infrastructure as Code**: Environment setup is fully scripted via virtualenv, `.env.example`, and modular components.
+- **CI/CD Readiness**: The architecture separates notification logic and UI, enabling scalable deployment and testing.
+- **LLMOps Control**: Prompt logic is externalized in `.llm_prompt.txt`, allowing reproducible and auditable LLM behavior across environments.
+
+---
+
+## 🚀 Long-Term Vision (Phase 3 and Beyond)
+
+This phase introduces a Model Context Protocol (MCP)-inspired architecture, designed to separate prompt logic, data access, and environment control—ensuring reproducibility, auditability, and safe deployment in public and educational settings.
+
+
+6. **🧠 MCP-Enabled LLM Integration**  
+   Enable Ollama or other LLMs to autonomously access real-time data via a structured MCP server:  
+   - LLMs retrieve GeoNet and Stats NZ data through controlled interfaces  
+   - Promotes secure, reproducible, and scalable AI reasoning workflows  
+   - Ideal for public-sector deployments requiring transparency and data governance
+
+7. **🧭 Dockerized MCP Server for Public Institutions**  
+   Package the MCP server into a Docker container for easy deployment by LINZ, SCION, NIWA, and local councils:  
+   - Ensures reproducibility and security in institutional environments  
+   - Allows agencies to host their own GeoAI pipelines with minimal setup  
+   - Supports integration with internal GIS layers and population datasets
+
+8. **🧑‍🏫 Educational MCP Server for GeoAI Learning**  
+   Provide a simplified MCP server for schools and universities:  
+   - Students query real-time earthquake data and generate impact reports using LLMs  
+   - Promotes hands-on learning in geospatial reasoning, disaster science, and AI ethics  
+   - Enables reproducible classroom exercises with local data and controlled prompts
+
+## 9. 🧩 Why This Architecture Matters
+
+This project is more than a tool—it is a reproducible, auditable GeoAI pipeline designed for public institutions and classrooms.  
+By separating prompt logic, environment variables, and data sources, it ensures trust, transparency, and adaptability across audiences.  
+It reflects a Model Context Protocol (MCP)-like design philosophy, enabling safe deployment and educational clarity in geospatial reasoning.
+
+
