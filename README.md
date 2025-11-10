@@ -1,28 +1,42 @@
 # GeoNet Real-time Earthquake Reporter 🌏
 
+---
+
+**Version**: 1.0  
+**Status**: Phase 1 Complete – Ready for Public Sector Review  
+**Maintainer**: Taka Murachi
+
+---
+
 ## Project Overview
 
-This Streamlit application retrieves real-time earthquake data from the GeoNet API in New Zealand, visualizes it, and uses a local LLM (e.g., Ollama Llama3) to generate expert-level impact reports.  
-It is designed for urban planning, disaster prevention, and public sector communication.
-This project reflects a reproducible GeoAI architecture designed for public-sector and educational deployment, emphasizing trust, transparency, and audience-aware messaging.
+A reproducible GeoAI app for real-time earthquake monitoring, impact reporting, and public-sector communication in New Zealand.  
+This Streamlit application retrieves real-time earthquake data from the GeoNet API, visualizes it, and uses a local LLM (e.g., Ollama Llama3) to generate expert-level impact reports.  
+It is designed for urban planning, disaster prevention, and educational outreach, reflecting a transparent and audience-aware architecture.
 
 ---
 
 ## 🔧 Features
 
-- **Real-time Earthquake Monitoring**: Updates every 5 minutes using GeoNet API.
-- **Interactive Visualization**:
-  - Map of recent earthquakes
-  - Magnitude distribution chart
-- **LLM-Generated Reports**:
-  - Natural language summaries based on seismic and population data
-  - Tone tailored for public sector and educational audiences
-- **Population-Aware Messaging**:
-  - Integrates Stats NZ Spatial Query API
-  - Adjusts impact messaging based on nearby population density
-- **Background Notification System**:
-  - Detects M4.0+ earthquakes
-  - Displays alerts in the Streamlit UI
+### 🌍 Real-time Monitoring
+- Updates every 5 minutes using GeoNet API
+- Background alert system for M4.0+ events
+
+### 🗺️ Interactive Visualization
+- Map of recent earthquakes
+- Magnitude distribution chart
+
+### 🤖 LLM-Generated Reports
+- Natural language summaries tailored to personas
+- Population-aware impact messaging
+
+### 👥 Population Context Integration
+- Stats NZ Spatial Query API
+- Dynamic messaging based on density
+
+### 🔔 Notification System
+- Background scheduler writes alerts to `notification_status.txt`
+- Streamlit UI displays alerts in real time
 
 ---
 
@@ -32,8 +46,8 @@ This project reflects a reproducible GeoAI architecture designed for public-sect
 The LLM prompt is stored in `.llm_prompt.txt`, guiding the model to produce clear, population-aware summaries.  
 This design ensures:
 
-- ✅ Reproducibility across environments
-- ✅ Customization for different audiences (e.g., planners, educators)
+- ✅ Reproducibility across environments  
+- ✅ Customization for different audiences (e.g., planners, educators)  
 - ✅ Trust and transparency for public sector use
 
 **Prompt placeholders:**
@@ -51,6 +65,14 @@ This app is ideal for:
 - **SCION / NIWA**: Environmental risk communication
 - **Educators**: Teaching geospatial reasoning and disaster preparedness
 - **Local Councils**: Public messaging and community awareness
+
+---
+
+## 🧪 Tested On
+
+- Windows 11 / Python 3.11 / Streamlit 1.48  
+- Ollama Llama3 (local)  
+- Stats NZ API (layer 115044)
 
 ---
 
@@ -128,7 +150,7 @@ streamlit run app.py
 
 Access the URL displayed in your browser.
 
-## Deployment
+## 🌐 Deployment
 
 To deploy this app on Streamlit Community Cloud, you need to push your code to a GitHub repository.
 
@@ -226,4 +248,25 @@ This project is more than a tool—it is a reproducible, auditable GeoAI pipelin
 By separating prompt logic, environment variables, and data sources, it ensures trust, transparency, and adaptability across audiences.  
 It reflects a Model Context Protocol (MCP)-like design philosophy, enabling safe deployment and educational clarity in geospatial reasoning.
 
+## 🗂️ Data Logging Strategy (CSV → PostGIS Transition)
+
+To ensure reproducibility and public-sector auditability, this project begins with a lightweight CSV-based logging system and transitions to a robust PostGIS database in later phases.
+
+### ✅ Phase 1: CSV Logging
+- Earthquake data is appended to `data/earthquake_log.csv` on each refresh.
+- This file serves as a transparent, portable record for validation, sharing, and ML preprocessing.
+- Monthly rotation (e.g., `earthquake_log_202511.csv`) is recommended for long-term storage and analysis.
+
+### 🚀 Phase 2: PostGIS Integration
+- A dedicated ETL script will ingest CSV logs into a PostGIS database.
+- Enables spatial queries (`ST_Within`, `ST_Distance`, `ST_Intersects`) for population impact, fault proximity, and urban vulnerability.
+- Supports ML/DL model training with structured spatial features.
+
+### 🧱 Phase 3: MCP-Ready Data Layer
+- PostGIS becomes the core data layer for the MCP server.
+- LLMs query structured earthquake and population data via controlled interfaces.
+- Ensures reproducibility, transparency, and safe deployment in public institutions.
+
+**Why this matters**  
+This staged strategy balances accessibility (CSV) with analytical power (PostGIS), ensuring that the system remains transparent, scalable, and adaptable across public, educational, and technical domains.
 

@@ -11,8 +11,8 @@ MAGNITUDE_THRESHOLD = 4.0
 
 def get_latest_earthquakes_background():
     """
-    GeoNet APIから最新の地震データを取得する関数 (バックグラウンド用)。
-    Streamlitのキャッシュは使用せず、純粋なデータ取得を行います。
+    A background function that retrieves the latest earthquake data from the GeoNet API.
+    This function does not use Streamlit's cache and simply retrieves data.
     """
     api_url = "https://api.geonet.org.nz/quake?MMI=3"
     
@@ -47,7 +47,7 @@ def get_latest_earthquakes_background():
 
 def check_for_major_quakes():
     """
-    主要な地震をチェックし、通知ファイルに書き込む関数。
+    A function that checks for major earthquakes and writes them to a notification file.
     """
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Checking for major earthquakes...")
     quakes = get_latest_earthquakes_background()
@@ -80,6 +80,16 @@ def check_for_major_quakes():
         if os.path.exists(NOTIFICATION_FILE):
             os.remove(NOTIFICATION_FILE)
             print(f"API error, {NOTIFICATION_FILE} cleared.")
+
+def read_notification_status():
+    """
+    Reads the content of the notification status file.
+    Returns the content as a string, or None if the file does not exist.
+    """
+    if os.path.exists(NOTIFICATION_FILE):
+        with open(NOTIFICATION_FILE, "r", encoding="utf-8") as f:
+            return f.read()
+    return None
 
 if __name__ == "__main__":
     # Ensure the notification file exists and is empty on startup

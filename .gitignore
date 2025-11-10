@@ -45,4 +45,5 @@ Thumbs.db
 
 .env
 .llm_prompt.txt
+data/earthquake_log.csv
 

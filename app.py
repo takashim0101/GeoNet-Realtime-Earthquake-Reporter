@@ -1,19 +1,3 @@
-# This web app is built using the Streamlit framework.
-# It retrieves the latest earthquake data from the GeoNet API and passes that data to the Google Gemini API.
-# It automatically generates reports for experts or the public.
-#
-# Key Features:
-# 1. Retrieves real-time earthquake data from the GeoNet API and caches the data.
-# 2. Plots earthquake data on a map and visualizes it in interactive charts.
-# 3. Lets LLM create reports based on user personas (e.g., real estate agents).
-# 4. Beautifully formats and displays the structured JSON data returned by LLM.
-#
-
-
-# This app integrates real-time seismic data from GeoNet with population context from Stats NZ to
-# generate localized impact reports using a local LLM. It adjusts messaging based on population density and
-# gracefully handles missing data, making it ideal for public sector use and educational outreach.
-
 import streamlit as st
 import requests
 from datetime import datetime
@@ -23,7 +7,8 @@ import altair as alt
 import time
 import os
 from dotenv import load_dotenv
-
+from streamlit_autorefresh import st_autorefresh
+from pyproj import Transformer
 # Load environment variables from .env file
 load_dotenv()
 
@@ -115,7 +100,7 @@ def call_llm_api(prompt):
 
 def get_population_data_from_statsnz(longitude, latitude, radius_meters=10000):
     """
-    Stats NZ Spatial Query APIから指定された座標周辺の人口関連データを取得する関数。
+    A function that retrieves population-related data around specified coordinates from the Stats NZ Spatial Query API.
     """
     api_key = os.getenv("STATS_NZ_API_KEY")
     if not api_key:
@@ -166,14 +151,14 @@ def get_population_data_from_statsnz(longitude, latitude, radius_meters=10000):
 
 
 #---------------------------------------------------------------------------------------------------
-# 2. Streamlit UIの構築
+# 2. Building the Streamlit UI
 #---------------------------------------------------------------------------------------------------
 
 NOTIFICATION_FILE = "notification_status.txt"
 
 def read_notification_status():
     """
-    通知ファイルからメッセージを読み込む関数。
+    A function to read messages from the notification file.
     """
     if os.path.exists(NOTIFICATION_FILE):
         with open(NOTIFICATION_FILE, "r", encoding="utf-8") as f:
@@ -182,7 +167,7 @@ def read_notification_status():
             return content
     return None
 
-# サイドバーをUIの整理に使用
+# Use the sidebar to organize your UI
 with st.sidebar:
     st.header("App Settings")
     user_persona = st.text_input("Report for:", placeholder="e.g., 'real estate agent' or 'urban planner'")
@@ -206,9 +191,36 @@ notification_message = read_notification_status()
 if notification_message:
     st.error(notification_message) # Use st.error for major quake alerts
 
-# アプリは、インタラクションまたはリフレッシュごとに上から下に実行される
+# The app runs from top to bottom with each interaction or refresh.
 st.info(f"Fetching information... (Automatically updates every 5 minutes, last updated: {datetime.now().strftime('%H:%M:%S')})")
 quakes = fetch_latest_earthquakes()
+
+def log_earthquake_data(quakes):
+    """
+    A function to append and save earthquake data to a CSV file.
+    """
+    if not quakes:
+        return
+
+    os.makedirs("data", exist_ok=True)
+    log_path = "data/earthquake_log.csv"
+
+    df = pd.DataFrame(quakes)
+    df["logged_at"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    df.to_csv(log_path, mode='a', index=False, header=not os.path.exists(log_path))
+
+if quakes:
+    latest_quake = quakes[0]
+    st.subheader(f"👥 Population Data near {latest_quake['Location']}")
+    
+    # Stats NZ API expects coordinates in NZTM2000 projection (EPSG:2193)
+    # Stats NZ API appears to accept WGS84 (EPSG:4326) coordinates directly
+
+    population_data = get_population_data_from_statsnz(
+    latest_quake['longitude'],  # same WGS84
+    latest_quake['latitude']
+)
 
 if quakes and quakes[0]['Magnitude'] is not None:
     st.subheader("📍 Recent Earthquakes on the Map")
@@ -270,5 +282,7 @@ else:
     st.warning("Could not fetch earthquake data. Please try again later.")
 
 # Add a manual refresh button
-if st.button("Refresh data"):
-    st.rerun()
+# if st.button("Refresh data"):
+#     st.rerun()
+
+st_autorefresh(interval=300000, limit=100, key="auto_refresh")
