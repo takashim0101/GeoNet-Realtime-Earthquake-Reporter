@@ -298,7 +298,7 @@ subgraph S["🧭 Streamlit App (UI Layer)"]
   S1[Frontend + Visualization]
 end
 
-subgraph M["⚙️ MPC Server (Docker Container)"]
+subgraph M["⚙️ MCP Server (Docker Container)"]
   
   subgraph SB["🧱 Sandboxed Environment"]
     
