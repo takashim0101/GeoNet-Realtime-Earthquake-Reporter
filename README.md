@@ -82,14 +82,14 @@ This app is ideal for:
 
 ---
 
-## 💡 Key Takeaways & Learnings (主な学びとポイント)
+## 💡 Key Takeaways & Learnings
 
 This project demonstrates that it is possible to build a powerful GeoAI application with real-time capabilities at **zero cost**. Here are the key takeaways:
 
-- **Cost-Free Architecture (コストゼロのアーキテクチャ)**: By leveraging a local LLM (Ollama), free public APIs (GeoNet, Stats NZ), and free-tier services (Streamlit Community Cloud, Gemini CLI), this entire project operates without any cloud billing.
-- **Local LLMs for Production (本番環境でのローカルLLM活用)**: For many use cases, a fine-tuned local LLM can provide sufficient performance without the cost and latency of cloud-based solutions.
-- **Reproducibility is Key (再現性の重要性)**: The use of `requirements.txt`, `.env.example`, and a separate `llm_prompt.txt` file ensures that the project is highly reproducible and transparent, which is critical for public sector and educational applications.
-- **Progressive Enhancement (段階的な機能強化)**: The project starts with a simple, effective architecture (CSV logging, local LLM) and lays out a clear path for future enhancements (PostGIS, cloud-based services), allowing for a scalable and sustainable development process.
+- **Cost-Free Architecture**: By leveraging a local LLM (Ollama), free public APIs (GeoNet, Stats NZ), and free-tier services (Streamlit Community Cloud, Gemini CLI), this entire project operates without any cloud billing.
+- **Local LLMs for Production**: For many use cases, a fine-tuned local LLM can provide sufficient performance without the cost and latency of cloud-based solutions.
+- **Reproducibility is Key**: The use of `requirements.txt`, `.env.example`, and a separate `llm_prompt.txt` file ensures that the project is highly reproducible and transparent, which is critical for public sector and educational applications.
+- **Progressive Enhancement**: The project starts with a simple, effective architecture (CSV logging, local LLM) and lays out a clear path for future enhancements (PostGIS, cloud-based services), allowing for a scalable and sustainable development process.
 
 ---
 
@@ -285,7 +285,7 @@ This phase introduces a **Model-centric Programming (MPC)** architecture, execut
 
 ```
 +-----------------------------------------------------------------+
-|      GeoAI Architecture with MPC & Sandboxing (MPCとサンドボックス連携)      |
+|      GeoAI Architecture with MPC & Sandboxing      |
 +-----------------------------------------------------------------+
 |                                                                 |
 |   +-------------------+      +--------------------------------+ |
