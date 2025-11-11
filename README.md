@@ -46,11 +46,11 @@ It is designed for urban planning, disaster prevention, and educational outreach
 
 **Main Dashboard:**
 *Shows the main interface with the latest earthquake data and map.*
-![Main Dashboard](Result/figure.png)
+![Main Dashboard](Result/Main_Dashboard.png)
 
 **LLM-Generated Report:**
 *Example of an AI-generated impact summary.*
-![LLM-Generated Report](Result/summury_result.png)
+![LLM-Generated Report](Result/LLM-Generated Report.png)
 
 ---
 
