@@ -284,15 +284,55 @@ This project reflects key principles of DevOps and LLMOps:
 This phase introduces a **Model-centric Programming (MPC)** architecture, executed within a **secure sandbox**, to create a truly reproducible, auditable, and safe GeoAI pipeline for public and educational settings.
 
 ```mermaid
-graph TD
-    User[User] --> Streamlit[Streamlit App (UI)]
-    Streamlit --> MPC[MPC Server (Docker Container)]
-    MPC --> SandboxedEnv[Sandboxed Environment]
-    SandboxedEnv --> LLMAgent[LLM Agent]
-    LLMAgent --> Tools[Allowed Tools]
-    Tools --> Policies[Data Access Policies]
-    Policies --> GeoNet[GeoNet API]
-    Policies --> StatsNZ[Stats NZ API]
+flowchart LR
+
+%% =========================
+%%  GEOAI ARCHITECTURE
+%% =========================
+
+subgraph U["👤 User / Client"]
+  U1[User interacts via web browser]
+end
+
+subgraph S["🧭 Streamlit App (UI Layer)"]
+  S1[Frontend + Visualization]
+end
+
+subgraph M["⚙️ MPC Server (Docker Container)"]
+  
+  subgraph SB["🧱 Sandboxed Environment"]
+    
+    subgraph L["🤖 LLM Agent"]
+      L1[GeoAI Reasoning Engine]
+    end
+    
+    subgraph T["🧰 Allowed Tool Set"]
+      T1[fetch_geonet_data]
+      T2[query_stats_nz]
+      T3[geojson_to_map]
+    end
+    
+    subgraph P["📜 Data Access Policies"]
+      P1[Restrict external access]
+      P2[Allow only approved APIs]
+    end
+
+    subgraph A["🌍 External Data APIs"]
+      A1[GeoNet API - Earthquake Data]
+      A2[Stats NZ API - Demographics, Geography]
+    end
+
+    L --> T
+    T --> P
+    P --> A
+    A1 --> T1
+    A2 --> T2
+  end
+  
+  L -- "Results to UI" --> S1
+end
+
+U --> S --> M
 ```
 
 **Note on Diagram Rendering:** If the Mermaid diagram above does not render correctly or beautifully in your Markdown viewer, it might be due to limitations of the renderer. For a guaranteed consistent and high-quality visual, consider rendering this Mermaid code into an SVG or PNG image using a tool like the [Mermaid Live Editor](https://mermaid.live/) and embedding the image directly.
