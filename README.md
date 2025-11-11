@@ -283,70 +283,19 @@ This project reflects key principles of DevOps and LLMOps:
 
 This phase introduces a **Model-centric Programming (MPC)** architecture, executed within a **secure sandbox**, to create a truly reproducible, auditable, and safe GeoAI pipeline for public and educational settings.
 
-```
-flowchart TD
-
-%% =========================
-%%  GEOAI ARCHITECTURE
-%% =========================
-
-subgraph U["👤 User / Client"]
-  U1[User interacts via web browser]
-end
-
-subgraph S["🧭 Streamlit App (UI Layer)"]
-  S1[Displays dashboards & results]
-  S2[Sends queries to backend securely]
-end
-
-subgraph M["⚙️ MPC Server (Docker Container)"]
-  
-  subgraph SB["🧱 Sandboxed Environment"]
-    
-    subgraph L["🤖 LLM Agent"]
-      L1[GeoAI Reasoning Engine]
-    end
-    
-    subgraph T["🧰 Allowed Tool Set"]
-      T1[fetch_geonet_data()]
-      T2[query_stats_nz()]
-      T3[geojson_to_map()]
-    end
-    
-    subgraph P["📜 Data Access Policies"]
-      P1[Restrict external access]
-      P2[Allow only approved APIs]
-    end
-
-    L --> T
-    T --> P
-
-    subgraph A["🌍 External Data APIs"]
-      A1[GeoNet API (Earthquake Data)]
-      A2[Stats NZ API (Demographics, Geography)]
-    end
-
-    P --> A
-
-  end
-end
-
-%% FLOW CONNECTIONS
-U --> S --> M
-M --> SB
-SB --> L
-
-%% VISUAL FLOW
-A1 -.-> L
-A2 -.-> L
-
+```mermaid
+graph TD
+    User[User] --> Streamlit[Streamlit App (UI)];
+    Streamlit --> MPC[MPC Server (Docker Container)];
+    MPC --> SandboxedEnv[Sandboxed Environment];
+    SandboxedEnv --> LLMAgent[LLM Agent];
+    LLMAgent --> Tools[Allowed Tools];
+    Tools --> Policies[Data Access Policies];
+    Policies --> GeoNet[GeoNet API];
+    Policies --> StatsNZ[Stats NZ API];
 ```
 
-🧩 Description
-
-Top-down data flow: User → Streamlit → MPC Server → Sandboxed LLM → External API.
-Emphasis on the sandbox: Internally, "LLM," "Allowed Tools," and "Access Policies" are clearly separated.
-Only secure paths are connected: Access is controlled in the following order: LLM → Tools → Policies → APIs.
+**Note on Diagram Rendering:** If the Mermaid diagram above does not render correctly or beautifully in your Markdown viewer, it might be due to limitations of the renderer. For a guaranteed consistent and high-quality visual, consider rendering this Mermaid code into an SVG or PNG image using a tool like the [Mermaid Live Editor](https://mermaid.live/) and embedding the image directly.
 
 ### 🧠 MPC-Enabled LLM Integration
 Instead of just passing data to a prompt, the LLM operates as an **agent** within a controlled environment. The MPC server defines the **exact context** for the LLM:
