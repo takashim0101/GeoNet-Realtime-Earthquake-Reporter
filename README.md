@@ -285,14 +285,14 @@ This phase introduces a **Model-centric Programming (MPC)** architecture, execut
 
 ```mermaid
 graph TD
-    User[User] --> Streamlit[Streamlit App (UI)];
-    Streamlit --> MPC[MPC Server (Docker Container)];
-    MPC --> SandboxedEnv[Sandboxed Environment];
-    SandboxedEnv --> LLMAgent[LLM Agent];
-    LLMAgent --> Tools[Allowed Tools];
-    Tools --> Policies[Data Access Policies];
-    Policies --> GeoNet[GeoNet API];
-    Policies --> StatsNZ[Stats NZ API];
+    User[User] --> Streamlit[Streamlit App (UI)]
+    Streamlit --> MPC[MPC Server (Docker Container)]
+    MPC --> SandboxedEnv[Sandboxed Environment]
+    SandboxedEnv --> LLMAgent[LLM Agent]
+    LLMAgent --> Tools[Allowed Tools]
+    Tools --> Policies[Data Access Policies]
+    Policies --> GeoNet[GeoNet API]
+    Policies --> StatsNZ[Stats NZ API]
 ```
 
 **Note on Diagram Rendering:** If the Mermaid diagram above does not render correctly or beautifully in your Markdown viewer, it might be due to limitations of the renderer. For a guaranteed consistent and high-quality visual, consider rendering this Mermaid code into an SVG or PNG image using a tool like the [Mermaid Live Editor](https://mermaid.live/) and embedding the image directly.
