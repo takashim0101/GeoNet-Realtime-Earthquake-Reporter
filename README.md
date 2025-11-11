@@ -284,43 +284,70 @@ This project reflects key principles of DevOps and LLMOps:
 This phase introduces a **Model-centric Programming (MPC)** architecture, executed within a **secure sandbox**, to create a truly reproducible, auditable, and safe GeoAI pipeline for public and educational settings.
 
 ```
-+=========================================================================+
-|                     🌐 GeoAI Architecture Overview                      |
-+=========================================================================+
+flowchart TD
 
-  [ User / Client ]
-          |
-          v
-  +---------------------------------------------------------+
-  |              Streamlit App (User Interface)              |
-  |  - Displays GeoAI dashboards & results                   |
-  |  - Sends user queries to backend securely                |
-  +---------------------------------------------------------+
-          |
-          v
-  +---------------------------------------------------------+
-  |        MPC Server (Docker Container / Backend Core)      |
-  +---------------------------------------------------------+
-          |
-          v
-  +---------------------------------------------------------+
-  |                  🔒 Sandboxed Environment                |
-  |  (Controlled execution zone for LLM & data tools)        |
-  |---------------------------------------------------------|
-  |  +-------------------+      +-------------------------+  |
-  |  |    LLM Agent      | ---> |   Allowed Tool Set      |  |
-  |  | (GeoAI reasoning) |      | - fetch_geonet_data()   |  |
-  |  |                   |      | - query_stats_nz()      |  |
-  |  |                   |      | - geojson_to_map()      |  |
-  |  +-------------------+      +-------------------------+  |
-  |             |                          ^                 |
-  |             |                          | Data Policies    |
-  |             v                          | (Access Control) |
-  |  +--------------------+    +-----------------------------+|
-  |  |   GeoNet API       |    |   Stats NZ API              ||
-  |  | (Earthquake Data)  |    | (Demographics, Geography)   ||
-  |  +--------------------+    +-----------------------------+|
-  +---------------------------------------------------------+
+%% =========================
+%%  GEOAI ARCHITECTURE
+%% =========================
+
+subgraph U["👤 User / Client"]
+  U1[User interacts via web browser]
+end
+
+subgraph S["🧭 Streamlit App (UI Layer)"]
+  S1[Displays dashboards & results]
+  S2[Sends queries to backend securely]
+end
+
+subgraph M["⚙️ MPC Server (Docker Container)"]
+  
+  subgraph SB["🧱 Sandboxed Environment"]
+    
+    subgraph L["🤖 LLM Agent"]
+      L1[GeoAI Reasoning Engine]
+    end
+    
+    subgraph T["🧰 Allowed Tool Set"]
+      T1[fetch_geonet_data()]
+      T2[query_stats_nz()]
+      T3[geojson_to_map()]
+    end
+    
+    subgraph P["📜 Data Access Policies"]
+      P1[Restrict external access]
+      P2[Allow only approved APIs]
+    end
+
+    L --> T
+    T --> P
+
+    subgraph A["🌍 External Data APIs"]
+      A1[GeoNet API (Earthquake Data)]
+      A2[Stats NZ API (Demographics, Geography)]
+    end
+
+    P --> A
+
+  end
+end
+
+%% FLOW CONNECTIONS
+U --> S --> M
+M --> SB
+SB --> L
+
+%% VISUAL FLOW
+A1 -.-> L
+A2 -.-> L
+
+🧩 Description
+
+Top-down data flow: User → Streamlit → MPC Server → Sandboxed LLM → External API.
+
+Emphasis on the sandbox: Internally, "LLM," "Allowed Tools," and "Access Policies" are clearly separated.
+
+Only secure paths are connected: Access is controlled in the following order: LLM → Tools → Policies → APIs.
+
 
 ```
 
