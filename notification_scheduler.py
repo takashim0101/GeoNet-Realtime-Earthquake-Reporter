@@ -4,6 +4,10 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Define the path for the notification status file
 NOTIFICATION_FILE = "notification_status.txt"
@@ -45,6 +49,26 @@ def get_latest_earthquakes_background():
         print(f"Error accessing the GeoNet API in background: {e}")
         return None
 
+def send_discord_notification(message):
+    """
+    Sends a notification message to a Discord webhook.
+    """
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    if not webhook_url:
+        print("DISCORD_WEBHOOK_URL not found in .env file. Skipping Discord notification.")
+        return
+
+    payload = {
+        "content": message
+    }
+    
+    try:
+        response = requests.post(webhook_url, json=payload)
+        response.raise_for_status()
+        print("Successfully sent notification to Discord.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending notification to Discord: {e}")
+
 def check_for_major_quakes():
     """
     A function that checks for major earthquakes and writes them to a notification file.
@@ -66,9 +90,11 @@ def check_for_major_quakes():
                 notification_messages.append(message)
         
         if major_quake_detected:
+            full_message = "\n".join(notification_messages)
             with open(NOTIFICATION_FILE, "w", encoding="utf-8") as f:
-                f.write("\n".join(notification_messages))
+                f.write(full_message)
             print(f"Major quake notification written to {NOTIFICATION_FILE}")
+            send_discord_notification(full_message) # Send notification to Discord
         else:
             # Clear the notification file if no major quakes are detected
             if os.path.exists(NOTIFICATION_FILE):

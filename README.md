@@ -40,6 +40,20 @@ It is designed for urban planning, disaster prevention, and educational outreach
 
 ---
 
+## 🖼️ Application Preview
+
+*A brief visual tour of the GeoNet Real-time Earthquake Reporter.*
+
+**Main Dashboard:**
+*Shows the main interface with the latest earthquake data and map.*
+![Main Dashboard](Result/figure.png)
+
+**LLM-Generated Report:**
+*Example of an AI-generated impact summary.*
+![LLM-Generated Report](Result/summury_result.png)
+
+---
+
 
 ## 🧠 Prompt Design
 
@@ -68,6 +82,17 @@ This app is ideal for:
 
 ---
 
+## 💡 Key Takeaways & Learnings (主な学びとポイント)
+
+This project demonstrates that it is possible to build a powerful GeoAI application with real-time capabilities at **zero cost**. Here are the key takeaways:
+
+- **Cost-Free Architecture (コストゼロのアーキテクチャ)**: By leveraging a local LLM (Ollama), free public APIs (GeoNet, Stats NZ), and free-tier services (Streamlit Community Cloud, Gemini CLI), this entire project operates without any cloud billing.
+- **Local LLMs for Production (本番環境でのローカルLLM活用)**: For many use cases, a fine-tuned local LLM can provide sufficient performance without the cost and latency of cloud-based solutions.
+- **Reproducibility is Key (再現性の重要性)**: The use of `requirements.txt`, `.env.example`, and a separate `llm_prompt.txt` file ensures that the project is highly reproducible and transparent, which is critical for public sector and educational applications.
+- **Progressive Enhancement (段階的な機能強化)**: The project starts with a simple, effective architecture (CSV logging, local LLM) and lays out a clear path for future enhancements (PostGIS, cloud-based services), allowing for a scalable and sustainable development process.
+
+---
+
 ## 🧪 Tested On
 
 - Windows 11 / Python 3.11 / Streamlit 1.48  
@@ -76,7 +101,46 @@ This app is ideal for:
 
 ---
 
-## Setup Instructions
+## 🐳 Running with Docker Compose (Recommended)
+
+This is the easiest way to run the application, as it automatically sets up the application, the Ollama server, and the network between them.
+
+### 1. Prerequisites
+
+- **Docker**: [Install Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+### 2. Set Up Environment Variables
+
+Create a `.env` file in the root directory of your project and add your Stats NZ API key:
+
+```
+STATS_NZ_API_KEY="YOUR_STATS_NZ_API_KEY"
+DISCORD_WEBHOOK_URL="YOUR_DISCORD_WEBHOOK_URL"
+```
+
+Replace `"YOUR_STATS_NZ_API_KEY"` and `"YOUR_DISCORD_WEBHOOK_URL"` with your actual keys.
+
+### 3. Run the Application
+
+Start the application with a single command:
+
+```bash
+docker-compose up --build
+```
+
+This will:
+- Build the application image.
+- Download the Ollama image.
+- Start the application, the notification scheduler, and the Ollama server.
+
+Access the Streamlit app in your browser at `http://localhost:8501`.
+
+---
+
+## 🛠️ Manual Setup
+
+If you prefer not to use Docker, you can still run the application locally.
 
 ### 1. Clone the Repository
 
@@ -100,55 +164,51 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Set Up Ollama LLM
-
-To run the LLM locally, install Ollama and download the `llama3` model.
-
-*   Install Ollama: [https://ollama.com/](https://ollama.com/)
-*   Download the `llama3` model:
-    ```bash
-    ollama run llama3
-    ```
-    (This will download the model and start the Ollama server.)
-
-### 4. Set Up Environment Variables
+### 3. Set Up Environment Variables
 
 Create a `.env` file in the root directory of your project and add your Stats NZ API key:
 
 ```
 STATS_NZ_API_KEY="YOUR_STATS_NZ_API_KEY"
+DISCORD_WEBHOOK_URL="YOUR_DISCORD_WEBHOOK_URL"
 ```
 
-Replace `"YOUR_STATS_NZ_API_KEY"` with your actual API key. This key is used to access population data.
+Replace `"YOUR_STATS_NZ_API_KEY"` and `"YOUR_DISCORD_WEBHOOK_URL"` with your actual keys.
 
-⚠️ Do not commit .env. Use .env.example to share safe templates.
+### 4. Run the Application
 
-An `.env.example` file is included to provide a safe template for environment variables.
+You will need two separate terminals to run the application.
 
+#### a. Start the Notification Scheduler (Terminal 1)
 
-### 5. Run the Application
-
-The application consists of two parts:
-
-#### a. Start the Notification Scheduler (Run in a separate terminal)
-
-This monitors for major earthquakes in the background and generates notifications.
-
-a. Start Notification Scheduler
 ```bash
 python notification_scheduler.py
 ```
 
-#### b. Start the Streamlit App (Run in another separate terminal)
+#### b. Start the Streamlit App (Terminal 2)
 
-This launches the main web application.
-
-b. Start Streamlit App
 ```bash
 streamlit run app.py
 ```
 
 Access the URL displayed in your browser.
+
+---
+
+## 🤔 Troubleshooting
+
+### ERROR: No matching distribution found for streamlit-autorefresh==0.0.3
+
+If you encounter this error during the `docker-compose up --build` process, it means that the version of `streamlit-autorefresh` specified in `requirements.txt` is not compatible with the Python version in the Docker container.
+
+**Solution:**
+
+1.  Open the `requirements.txt` file.
+2.  Find the line `streamlit-autorefresh==0.0.3`.
+3.  Change it to a compatible version, for example: `streamlit-autorefresh==1.0.1`.
+4.  Run `docker-compose up --build` again.
+
+---
 
 ## 🌐 Deployment
 
@@ -219,28 +279,95 @@ This project reflects key principles of DevOps and LLMOps:
 
 ---
 
-## 🚀 Long-Term Vision (Phase 3 and Beyond)
+## 🚀 Long-Term Vision: Advanced MPC & Sandboxing for Secure GeoAI
 
-This phase introduces a Model Context Protocol (MCP)-inspired architecture, designed to separate prompt logic, data access, and environment control—ensuring reproducibility, auditability, and safe deployment in public and educational settings.
+This phase introduces a **Model-centric Programming (MPC)** architecture, executed within a **secure sandbox**, to create a truly reproducible, auditable, and safe GeoAI pipeline for public and educational settings.
 
+```
++-----------------------------------------------------------------+
+|      GeoAI Architecture with MPC & Sandboxing (MPCとサンドボックス連携)      |
++-----------------------------------------------------------------+
+|                                                                 |
+|   +-------------------+      +--------------------------------+ |
+|   |   User/Client     |----->|      Streamlit App (UI)        | |
+|   +-------------------+      +--------------------------------+ |
+|                                      |                          |
+|                                      v                          |
+|   +-----------------------------------------------------------+ |
+|   |                  MPC Server (Docker Container)            | |
+|   +-----------------------------------------------------------+ |
+|   |                                                           | |
+|   |   +---------------------------------------------------+   | |
+|   |   |             Sandboxed Environment               |   | |
+|   |   +---------------------------------------------------+   | |
+|   |   |                                                   |   | |
+|   |   |   +-----------------+   +---------------------+   |   | |
+|   |   |   |   LLM Agent     |   |    Allowed Tools    |   |   | |
+|   |   |   +-----------------+   +---------------------+   |   | |
+|   |   |           |             | fetch_geonet_data() |   |   | |
+|   |   |           |             | query_stats_nz()    |   |   | |
+|   |   |           +------------>+---------------------+   |   | |
+|   |   |                         |  Data Access Policies |   |   | |
+|   |   |                         +---------------------+   |   | |
+|   |   |                                                   |   | |
+|   |   +---------------------------------------------------+   | |
+|   |                         |         ^                       | |
+|   |                         v         |                       | |
+|   |   +---------------------+   +---------------------+   | |
+|   |   |   GeoNet API      |   |    Stats NZ API     |   | |
+|   |   +---------------------+   +---------------------+   | |
+|   |                                                           | |
+|   +-----------------------------------------------------------+ |
+|                                                                 |
++-----------------------------------------------------------------+
+```
 
-6. **🧠 MCP-Enabled LLM Integration**  
-   Enable Ollama or other LLMs to autonomously access real-time data via a structured MCP server:  
-   - LLMs retrieve GeoNet and Stats NZ data through controlled interfaces  
-   - Promotes secure, reproducible, and scalable AI reasoning workflows  
-   - Ideal for public-sector deployments requiring transparency and data governance
+### 🧠 MPC-Enabled LLM Integration
+Instead of just passing data to a prompt, the LLM operates as an **agent** within a controlled environment. The MPC server defines the **exact context** for the LLM:
+- **Permitted Tools**: The LLM can only use a pre-approved set of tools (e.g., `fetch_geonet_data`, `query_stats_nz`).
+- **Data Access Policies**: The LLM's access to data is strictly governed by the MPC server, preventing unauthorized data access.
+- **Environment Constraints**: The LLM operates within a sandboxed environment, isolating it from the host system and network.
 
-7. **🧭 Dockerized MCP Server for Public Institutions**  
-   Package the MCP server into a Docker container for easy deployment by LINZ, SCION, NIWA, and local councils:  
-   - Ensures reproducibility and security in institutional environments  
-   - Allows agencies to host their own GeoAI pipelines with minimal setup  
-   - Supports integration with internal GIS layers and population datasets
+### 🧭 Dockerized MPC Server for Public Institutions
+The entire MPC server and the sandboxed environment are packaged into a **Docker container**. This allows public institutions (LINZ, SCION, NIWA) to:
+- **Deploy with Confidence**: Run the GeoAI pipeline in a secure, isolated environment without risking their internal systems.
+- **Ensure Reproducibility**: Guarantee that the AI's behavior is consistent and auditable across different deployments.
+- **Customize with Control**: Safely integrate their own internal GIS layers and data into the MPC context.
 
-8. **🧑‍🏫 Educational MCP Server for GeoAI Learning**  
-   Provide a simplified MCP server for schools and universities:  
-   - Students query real-time earthquake data and generate impact reports using LLMs  
-   - Promotes hands-on learning in geospatial reasoning, disaster science, and AI ethics  
-   - Enables reproducible classroom exercises with local data and controlled prompts
+### 🧑‍🏫 Educational MPC Server for GeoAI Learning
+A simplified version of the MPC server can be used in schools and universities to:
+- **Teach AI Safety**: Demonstrate the principles of sandboxing and controlled AI execution.
+- **Promote Hands-on Learning**: Allow students to safely experiment with LLM agents for geospatial analysis.
+- **Foster Trust in AI**: Build a deeper understanding of how to create trustworthy and reliable AI systems.
+
+### 🧩 Why This Architecture Matters
+This vision goes beyond a simple app. It's a blueprint for a **secure, reproducible, and auditable GeoAI pipeline**. By combining the explicit context of MPC with the security of sandboxing, we can build AI systems that are not only powerful but also trustworthy, making them suitable for critical applications in the public sector and education.
+
+---
+
+## 🤖 How an AI Agent Interacts with This Project
+
+This project is designed to be "AI-Ready," meaning that it can be easily understood and interacted with by AI agents (like the one you might be interacting with right now). Here's a conceptual overview of how an AI agent might approach this project:
+
+1.  **Fetching the README**: The agent starts by fetching the `README.md` from the GitHub repository to get a comprehensive overview of the project.
+
+2.  **Extracting Key Information**: The agent parses the `README.md` to identify key sections:
+    - **Features**: To understand the project's capabilities.
+    - **Running with Docker Compose**: To learn how to set up and run the project.
+    - **Key Takeaways & Learnings**: To grasp the project's core principles, such as its cost-free architecture.
+    - **Long-Term Vision**: To understand the project's future goals and advanced architecture.
+
+3.  **Understanding the Architecture**: The agent analyzes the architecture diagrams and descriptions to build a mental model of how the components (Streamlit app, MPC server, Ollama, external APIs) interact.
+
+4.  **Generating Code and Answering Questions**: Based on this deep understanding, the agent can:
+    - **Answer questions** about the project's features, setup, and architecture.
+    - **Generate code** to extend the project's functionality.
+    - **Suggest improvements** or modifications based on the project's long-term vision.
+    - **Troubleshoot issues** by reasoning about the potential points of failure in the architecture.
+
+By providing a well-structured and detailed `README.md`, we make it easier for both humans and AI agents to understand, use, and contribute to the project.
+
+---
 
 ## 9. 🧩 Why This Architecture Matters
 
