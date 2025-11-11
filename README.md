@@ -340,16 +340,13 @@ SB --> L
 A1 -.-> L
 A2 -.-> L
 
+```
+
 🧩 Description
 
 Top-down data flow: User → Streamlit → MPC Server → Sandboxed LLM → External API.
-
 Emphasis on the sandbox: Internally, "LLM," "Allowed Tools," and "Access Policies" are clearly separated.
-
 Only secure paths are connected: Access is controlled in the following order: LLM → Tools → Policies → APIs.
-
-
-```
 
 ### 🧠 MPC-Enabled LLM Integration
 Instead of just passing data to a prompt, the LLM operates as an **agent** within a controlled environment. The MPC server defines the **exact context** for the LLM:
@@ -398,7 +395,7 @@ By providing a well-structured and detailed `README.md`, we make it easier for b
 
 ---
 
-## 9. 🧩 Why This Architecture Matters
+## 🧩 Why This Architecture Matters
 
 This project is more than a tool—it is a reproducible, auditable GeoAI pipeline designed for public institutions and classrooms.  
 By separating prompt logic, environment variables, and data sources, it ensures trust, transparency, and adaptability across audiences.  
