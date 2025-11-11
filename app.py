@@ -211,38 +211,27 @@ def log_earthquake_data(quakes):
     df.to_csv(log_path, mode='a', index=False, header=not os.path.exists(log_path))
 
 if quakes:
-    latest_quake = quakes[0]
-    st.subheader(f"👥 Population Data near {latest_quake['Location']}")
-    
-    # Stats NZ API expects coordinates in NZTM2000 projection (EPSG:2193)
-    # Stats NZ API appears to accept WGS84 (EPSG:4326) coordinates directly
 
-    population_data = get_population_data_from_statsnz(
-    latest_quake['longitude'],  # same WGS84
-    latest_quake['latitude']
-)
+    if quakes and quakes[0]['Magnitude'] is not None:
+        st.subheader("📍 Recent Earthquakes on the Map")
+        
+        earthquake_df = pd.DataFrame(quakes)
+        st.map(earthquake_df, latitude='latitude', longitude='longitude', zoom=4)
+        
+        st.subheader("📊 Earthquake Magnitude Distribution")
+        chart = alt.Chart(earthquake_df).mark_bar().encode(
+            x=alt.X('Magnitude:Q', bin=True),
+            y='count()',
+            tooltip=['Magnitude', 'count()']
+        ).properties(
+            title='Frequency of Earthquakes by Magnitude'
+        )
+        st.altair_chart(chart, use_container_width=True)
+        
+        st.subheader("📝 Latest Earthquake Data")
+        st.write(earthquake_df)
 
-if quakes and quakes[0]['Magnitude'] is not None:
-    st.subheader("📍 Recent Earthquakes on the Map")
-    
-    earthquake_df = pd.DataFrame(quakes)
-    st.map(earthquake_df, latitude='latitude', longitude='longitude', zoom=4)
-    
-    st.subheader("📊 Earthquake Magnitude Distribution")
-    chart = alt.Chart(earthquake_df).mark_bar().encode(
-        x=alt.X('Magnitude:Q', bin=True),
-        y='count()',
-        tooltip=['Magnitude', 'count()']
-    ).properties(
-        title='Frequency of Earthquakes by Magnitude'
-    )
-    st.altair_chart(chart, use_container_width=True)
-    
-    st.subheader("📝 Latest Earthquake Data")
-    st.write(earthquake_df)
-
-    # Fetch and display population data for the latest earthquake
-    if quakes:
+        # Fetch and display population data for the latest earthquake
         latest_quake = quakes[0]
         st.subheader(f"👥 Population Data near {latest_quake['Location']}")
         
@@ -258,28 +247,28 @@ if quakes and quakes[0]['Magnitude'] is not None:
             st.json(population_data) 
         else:
             st.info("No population data found or API key missing for this location.")
-    
-    with open("llm_prompt.txt", "r", encoding="utf-8") as f:
-        prompt_template = f.read()
-    
-    prompt = prompt_template.replace("{{earthquake_data}}", json.dumps(quakes, indent=2, ensure_ascii=False)) \
-                        .replace("{{population_data}}", json.dumps(population_data, indent=2, ensure_ascii=False))
         
-    llm_response = call_llm_api(prompt)
-    
-    st.subheader("🤖 LLM Report")
-    
-    if 'error' in llm_response:
-        st.error(llm_response['error'])
+        with open("llm_prompt.txt", "r", encoding="utf-8") as f:
+            prompt_template = f.read()
+        
+        prompt = prompt_template.replace("{{earthquake_data}}", json.dumps(quakes, indent=2, ensure_ascii=False)) \
+                            .replace("{{population_data}}", json.dumps(population_data, indent=2, ensure_ascii=False))
+            
+        llm_response = call_llm_api(prompt)
+        
+        st.subheader("🤖 LLM Report")
+        
+        if 'error' in llm_response:
+            st.error(llm_response['error'])
+        else:
+            st.write(f"### {llm_response.get('report_title', 'Report')}")
+            st.write(llm_response.get('summary', ''))
+            
+            if 'impacts' in llm_response:
+                impacts_df = pd.DataFrame(llm_response['impacts'])
+                st.table(impacts_df)
     else:
-        st.write(f"### {llm_response.get('report_title', 'Report')}")
-        st.write(llm_response.get('summary', ''))
-        
-        if 'impacts' in llm_response:
-            impacts_df = pd.DataFrame(llm_response['impacts'])
-            st.table(impacts_df)
-else:
-    st.warning("Could not fetch earthquake data. Please try again later.")
+        st.warning("Could not fetch earthquake data. Please try again later.")
 
 # Add a manual refresh button
 # if st.button("Refresh data"):
