@@ -279,9 +279,9 @@ This project reflects key principles of DevOps and LLMOps:
 
 ---
 
-## 🚀 Long-Term Vision: Advanced MPC & Sandboxing for Secure GeoAI
+## 🚀 Long-Term Vision: Advanced MCP & Sandboxing for Secure GeoAI
 
-This phase introduces a **Model-centric Programming (MPC)** architecture, executed within a **secure sandbox**, to create a truly reproducible, auditable, and safe GeoAI pipeline for public and educational settings.
+This phase introduces a **Model-centric Programming (MCP)** architecture, executed within a **secure sandbox**, to create a truly reproducible, auditable, and safe GeoAI pipeline for public and educational settings.
 
 ```mermaid
 flowchart LR
@@ -337,26 +337,26 @@ U --> S --> M
 
 **Note on Diagram Rendering:** If the Mermaid diagram above does not render correctly or beautifully in your Markdown viewer, it might be due to limitations of the renderer. For a guaranteed consistent and high-quality visual, consider rendering this Mermaid code into an SVG or PNG image using a tool like the [Mermaid Live Editor](https://mermaid.live/) and embedding the image directly.
 
-### 🧠 MPC-Enabled LLM Integration
-Instead of just passing data to a prompt, the LLM operates as an **agent** within a controlled environment. The MPC server defines the **exact context** for the LLM:
+### 🧠 MCP-Enabled LLM Integration
+Instead of just passing data to a prompt, the LLM operates as an **agent** within a controlled environment. The MCP server defines the **exact context** for the LLM:
 - **Permitted Tools**: The LLM can only use a pre-approved set of tools (e.g., `fetch_geonet_data`, `query_stats_nz`).
-- **Data Access Policies**: The LLM's access to data is strictly governed by the MPC server, preventing unauthorized data access.
+- **Data Access Policies**: The LLM's access to data is strictly governed by the MCP server, preventing unauthorized data access.
 - **Environment Constraints**: The LLM operates within a sandboxed environment, isolating it from the host system and network.
 
-### 🧭 Dockerized MPC Server for Public Institutions
-The entire MPC server and the sandboxed environment are packaged into a **Docker container**. This allows public institutions (LINZ, SCION, NIWA) to:
+### 🧭 Dockerized MCP Server for Public Institutions
+The entire MCP server and the sandboxed environment are packaged into a **Docker container**. This allows public institutions (LINZ, SCION, NIWA) to:
 - **Deploy with Confidence**: Run the GeoAI pipeline in a secure, isolated environment without risking their internal systems.
 - **Ensure Reproducibility**: Guarantee that the AI's behavior is consistent and auditable across different deployments.
-- **Customize with Control**: Safely integrate their own internal GIS layers and data into the MPC context.
+- **Customize with Control**: Safely integrate their own internal GIS layers and data into the MCP context.
 
-### 🧑‍🏫 Educational MPC Server for GeoAI Learning
-A simplified version of the MPC server can be used in schools and universities to:
+### 🧑‍🏫 Educational MCP Server for GeoAI Learning
+A simplified version of the MCP server can be used in schools and universities to:
 - **Teach AI Safety**: Demonstrate the principles of sandboxing and controlled AI execution.
 - **Promote Hands-on Learning**: Allow students to safely experiment with LLM agents for geospatial analysis.
 - **Foster Trust in AI**: Build a deeper understanding of how to create trustworthy and reliable AI systems.
 
 ### 🧩 Why This Architecture Matters
-This vision goes beyond a simple app. It's a blueprint for a **secure, reproducible, and auditable GeoAI pipeline**. By combining the explicit context of MPC with the security of sandboxing, we can build AI systems that are not only powerful but also trustworthy, making them suitable for critical applications in the public sector and education.
+This vision goes beyond a simple app. It's a blueprint for a **secure, reproducible, and auditable GeoAI pipeline**. By combining the explicit context of MCP with the security of sandboxing, we can build AI systems that are not only powerful but also trustworthy, making them suitable for critical applications in the public sector and education.
 
 ---
 
@@ -372,7 +372,7 @@ This project is designed to be "AI-Ready," meaning that it can be easily underst
     - **Key Takeaways & Learnings**: To grasp the project's core principles, such as its cost-free architecture.
     - **Long-Term Vision**: To understand the project's future goals and advanced architecture.
 
-3.  **Understanding the Architecture**: The agent analyzes the architecture diagrams and descriptions to build a mental model of how the components (Streamlit app, MPC server, Ollama, external APIs) interact.
+3.  **Understanding the Architecture**: The agent analyzes the architecture diagrams and descriptions to build a mental model of how the components (Streamlit app, MCP server, Ollama, external APIs) interact.
 
 4.  **Generating Code and Answering Questions**: Based on this deep understanding, the agent can:
     - **Answer questions** about the project's features, setup, and architecture.
