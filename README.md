@@ -50,7 +50,7 @@ It is designed for urban planning, disaster prevention, and educational outreach
 
 **LLM-Generated Report:**
 *Example of an AI-generated impact summary.*
-![LLM-Generated Report](Result/LLM_Generated_Report.png)
+![LLM-Generated Report](Result/LLM-Generated%20Report.png)
 
 ---
 
